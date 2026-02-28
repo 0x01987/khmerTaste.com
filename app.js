@@ -10,23 +10,44 @@ const menuItems = [
     id: "banhmi",
     name: "Bánh Mì",
     price: 12,
-    description: "Crispy baguette, pickled veggies, fresh herbs, house sauce.",
+    description: "Fresh baguette, pickled vegetables, herbs, house sauce.",
     image: "images/menu/banhmi.jpg",
   },
   {
-    id: "ricebowl",
-    name: "Khmer Lok-Lak Rice Bowl",
-    price: 14,
-    description: "Jasmine rice, grilled protein, crisp veg, Khmer flavors.",
-    image: "images/menu/loklak.jpg",
+    id: "chickencurry",
+    name: "Chicken Curry",
+    price: 15,
+    description: "Traditional Khmer coconut curry with tender chicken.",
+    image: "images/menu/chickencurry.jpg",
+  },
+  {
+    id: "familycombo",
+    name: "Family Combo",
+    price: 48,
+    description: "Perfect for sharing — multiple mains and sides.",
+    image: "images/menu/familycombo.jpg",
   },
   {
     id: "herofood",
-    name: "Lemongrass Stir Fry",
-    price: 13,
-    description: "Savory, balanced, comforting made fresh.",
+    name: "Signature Hero Plate",
+    price: 18,
+    description: "Our chef’s special featured Khmer dish.",
     image: "images/menu/herofood.jpg",
   },
+  {
+    id: "loklak",
+    name: "Beef Lok Lak",
+    price: 17,
+    description: "Marinated stir-fried beef served with rice and sauce.",
+    image: "images/menu/loklak.jpg",
+  },
+  {
+    id: "stickyrice",
+    name: "Sticky Rice",
+    price: 6,
+    description: "Traditional Cambodian sticky rice side.",
+    image: "images/menu/stickyrice.jpg",
+  }
 ];
 
 // ======================
