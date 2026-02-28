@@ -4,34 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Khmer Taste</title>
-  <meta name="description" content="Khmer Taste — authentic flavors, crafted with care." />
-
-  <!-- Styles -->
+  <meta name="description" content="Khmer Taste — authentic Khmer flavors, crafted with care." />
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- Favicon (optional) -->
-  <!-- Put a favicon at /images/favicon.png and uncomment below -->
-  <!-- <link rel="icon" type="image/png" href="images/favicon.png" /> -->
 </head>
 
 <body>
-  <!-- Header / Navbar -->
+  <!-- Header -->
   <header class="navbar">
     <div class="container nav-inner">
       <a class="brand" href="./" aria-label="Khmer Taste Home">
-        <img
-          class="logo"
-          src="images/khmer-taste-logo.png"
-          alt="Khmer Taste logo"
-          loading="eager"
-        />
+        <img class="logo" src="images/khmer-taste-logo.png" alt="Khmer Taste logo" />
       </a>
 
       <nav class="nav">
         <a href="#menu">Menu</a>
-        <a href="#hours">Hours</a>
-        <a href="#location">Location</a>
-        <a class="btn" href="#contact">Contact</a>
+        <a href="#order">Order</a>
+        <a href="#contact">Contact</a>
       </nav>
     </div>
   </header>
@@ -44,62 +32,84 @@
         <p>Authentic Khmer flavors. Clean ingredients. Made with love.</p>
         <div class="hero-actions">
           <a class="btn" href="#menu">View Menu</a>
-          <a class="btn-outline" href="#contact">Order / Catering</a>
+          <a class="btn-outline" href="#order">Place Order</a>
         </div>
       </div>
     </section>
 
-    <!-- Sections -->
+    <!-- MENU (auto-rendered) -->
     <section id="menu" class="section">
       <div class="container">
-        <h2>Menu Highlights</h2>
-        <div class="grid">
-          <div class="card">
-            <h3>Bánh Mì</h3>
-            <p>Crispy baguette, pickled veggies, fresh herbs, house sauce.</p>
+        <div class="section-top">
+          <div>
+            <h2>Menu</h2>
+            <p class="muted">Edit your menu easily in <code>app.js</code> — add/remove items from one list.</p>
           </div>
-          <div class="card">
-            <h3>Rice Bowls</h3>
-            <p>Grilled proteins, jasmine rice, bright Khmer-inspired flavors.</p>
-          </div>
-          <div class="card">
-            <h3>Noodles</h3>
-            <p>Comforting, savory, balanced — made fresh and satisfying.</p>
+          <div class="search-wrap">
+            <input id="searchInput" type="search" placeholder="Search menu (banh mi, bowl, noodles...)" />
           </div>
         </div>
+
+        <div id="menuGrid" class="menu-grid"></div>
       </div>
     </section>
 
-    <section id="hours" class="section alt">
+    <!-- ORDER -->
+    <section id="order" class="section alt">
       <div class="container">
-        <h2>Hours</h2>
-        <ul class="list">
-          <li><strong>Mon–Thu:</strong> 11:00 AM – 8:00 PM</li>
-          <li><strong>Fri–Sat:</strong> 11:00 AM – 9:00 PM</li>
-          <li><strong>Sun:</strong> Closed</li>
-        </ul>
-        <p class="muted">Update these hours to match your real schedule.</p>
-      </div>
-    </section>
+        <div class="order-header">
+          <h2>Your Order</h2>
+          <div class="order-actions">
+            <button class="btn-outline" id="clearOrder" type="button">Clear</button>
+          </div>
+        </div>
 
-    <section id="location" class="section">
-      <div class="container">
-        <h2>Location</h2>
-        <p>Phoenix, AZ (Update with your address)</p>
-        <div class="card">
+        <div id="orderItems" class="order-items muted">No items yet.</div>
+
+        <div class="order-total">
+          <span>Total</span>
+          <strong id="orderTotal">$0.00</strong>
+        </div>
+
+        <div class="card tip-card">
           <p class="muted">
-            Add a Google Map embed here when you’re ready.
+            This form sends your order to your email (Formspree). You can confirm pickup time + payment after.
           </p>
         </div>
+
+        <!-- IMPORTANT: Replace YOUR_FORM_ID with your real Formspree endpoint -->
+        <form class="order-form" id="orderForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <input type="hidden" name="order_details" id="orderDetailsField" />
+          <input type="hidden" name="order_total" id="orderTotalField" />
+
+          <div class="form-grid">
+            <label>
+              Name
+              <input name="name" required placeholder="Your name" />
+            </label>
+
+            <label>
+              Phone
+              <input name="phone" required placeholder="(602) 555-0123" />
+            </label>
+
+            <label class="full">
+              Pickup / Delivery Notes
+              <input name="notes" placeholder="Pickup time, allergies, no cilantro, etc." />
+            </label>
+          </div>
+
+          <button class="btn" type="submit" id="placeOrderBtn" disabled>Place Order</button>
+          <p class="muted tiny">We’ll confirm your order by text/call.</p>
+        </form>
       </div>
     </section>
 
-    <section id="contact" class="section alt">
+    <!-- CONTACT -->
+    <section id="contact" class="section">
       <div class="container">
         <h2>Contact</h2>
-        <p>For orders, catering, and events:</p>
-
-        <div class="contact-grid">
+        <div class="grid">
           <div class="card">
             <h3>Phone</h3>
             <p><a href="tel:+16025550123">(602) 555-0123</a></p>
@@ -109,8 +119,8 @@
             <p><a href="mailto:hello@khmertaste.com">hello@khmertaste.com</a></p>
           </div>
           <div class="card">
-            <h3>Social</h3>
-            <p><a href="#" aria-label="Instagram">Instagram</a></p>
+            <h3>Instagram</h3>
+            <p><a href="#" aria-label="Instagram link">Add your link</a></p>
           </div>
         </div>
       </div>
@@ -121,12 +131,13 @@
   <footer class="footer">
     <div class="container footer-inner">
       <p>© <span id="year"></span> Khmer Taste. All rights reserved.</p>
-      <p class="muted">Built with GitHub Pages.</p>
+      <p class="muted">Built on GitHub Pages.</p>
     </div>
   </footer>
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
+  <script src="app.js"></script>
 </body>
 </html>
