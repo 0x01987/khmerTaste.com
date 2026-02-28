@@ -15,17 +15,17 @@ const menuItems = [
   },
   {
     id: "ricebowl",
-    name: "Khmer Rice Bowl",
+    name: "Khmer Lok-Lak Rice Bowl",
     price: 14,
     description: "Jasmine rice, grilled protein, crisp veg, Khmer flavors.",
-    image: "images/menu/ricebowl.jpg",
+    image: "images/menu/loklak.jpg",
   },
   {
-    id: "noodles",
-    name: "Noodles",
+    id: "herofood",
+    name: "Lemongrass Stir Fry",
     price: 13,
-    description: "Savory, balanced, comforting noodles made fresh.",
-    image: "images/menu/noodles.jpg",
+    description: "Savory, balanced, comforting made fresh.",
+    image: "images/menu/herofood.jpg",
   },
 ];
 
