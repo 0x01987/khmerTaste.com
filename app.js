@@ -1,248 +1,198 @@
-const MENU = [
+// =====================================================
+// EASY MENU EDITING
+// - Add a new item: copy one object below and change fields
+// - Delete an item: remove its object from the list
+// - Change price/name/description/image anytime
+// Image paths are relative to index.html
+// =====================================================
+const menuItems = [
   {
-    id: "banhmi-classic",
-    name: "Banh Mi (Classic)",
-    price: 10.00,
-    desc: "Crispy baguette, pickled veggies, cucumber, cilantro, house sauce.",
-    cat: "sandwiches",
-    meta: ["Fan favorite", "Fresh"]
+    id: "banhmi",
+    name: "Bánh Mì",
+    price: 12,
+    description: "Crispy baguette, pickled veggies, fresh herbs, house sauce.",
+    image: "images/menu/banhmi.jpg",
   },
   {
-    id: "banhmi-bbq",
-    name: "Banh Mi (BBQ Pork)",
-    price: 11.00,
-    desc: "BBQ pork, pickled veggies, cucumber, cilantro, house sauce.",
-    cat: "sandwiches",
-    meta: ["Savory", "Popular"]
+    id: "ricebowl",
+    name: "Khmer Rice Bowl",
+    price: 14,
+    description: "Jasmine rice, grilled protein, crisp veg, Khmer flavors.",
+    image: "images/menu/ricebowl.jpg",
   },
   {
-    id: "ricebowl-chicken",
-    name: "Chicken Rice Bowl",
-    price: 13.00,
-    desc: "Grilled chicken, jasmine rice, fresh herbs, house dressing.",
-    cat: "bowls",
-    meta: ["Filling"]
+    id: "noodles",
+    name: "Noodles",
+    price: 13,
+    description: "Savory, balanced, comforting noodles made fresh.",
+    image: "images/menu/noodles.jpg",
   },
-  {
-    id: "ricebowl-beef",
-    name: "Beef Rice Bowl",
-    price: 14.00,
-    desc: "Marinated beef, jasmine rice, fresh herbs, house dressing.",
-    cat: "bowls",
-    meta: ["Hearty"]
-  },
-  {
-    id: "springrolls",
-    name: "Fresh Spring Rolls (2pc)",
-    price: 7.00,
-    desc: "Fresh rolls with herbs and dipping sauce.",
-    cat: "snacks",
-    meta: ["Light"]
-  },
-  {
-    id: "icedcoffee",
-    name: "Khmer Iced Coffee",
-    price: 5.00,
-    desc: "Strong coffee over ice with sweet cream.",
-    cat: "drinks",
-    meta: ["Signature"]
-  }
 ];
 
-// --- State
-const cart = new Map(); // id -> qty
-let activeFilter = "all";
+// ======================
+// Cart (order) state
+// ======================
+const cart = new Map(); // key: itemId -> { item, qty }
 
-// --- Elements
 const menuGrid = document.getElementById("menuGrid");
-const tabs = document.querySelectorAll(".tab");
+const searchInput = document.getElementById("searchInput");
 
-const drawer = document.getElementById("cartDrawer");
-const openCartBtn = document.getElementById("openCartBtn");
-const openCartBtn2 = document.getElementById("openCartBtn2");
-const closeCartBtn = document.getElementById("closeCartBtn");
-const closeCartOverlay = document.getElementById("closeCartOverlay");
-
-const cartList = document.getElementById("cartList");
-const cartCount = document.getElementById("cartCount");
-const cartSub = document.getElementById("cartSub");
-const cartSubtotal = document.getElementById("cartSubtotal");
-
-const orderForm = document.getElementById("orderForm");
-const orderItemsField = document.getElementById("orderItemsField");
+const orderItemsEl = document.getElementById("orderItems");
+const orderTotalEl = document.getElementById("orderTotal");
+const orderDetailsField = document.getElementById("orderDetailsField");
 const orderTotalField = document.getElementById("orderTotalField");
-const formMsg = document.getElementById("formMsg");
+const placeOrderBtn = document.getElementById("placeOrderBtn");
 
-const scrollToOrderBtn = document.getElementById("scrollToOrderBtn");
+document.getElementById("clearOrder").addEventListener("click", () => {
+  cart.clear();
+  renderCart();
+});
 
-function money(n){ return `$${n.toFixed(2)}`; }
-
-function getFilteredMenu(){
-  if(activeFilter === "all") return MENU;
-  return MENU.filter(i => i.cat === activeFilter);
+// ----------------------
+// Helpers
+// ----------------------
+function money(n) {
+  return `$${Number(n).toFixed(2)}`;
 }
 
-// --- Render Menu
-function renderMenu(){
+function getFilteredMenu() {
+  const q = (searchInput.value || "").trim().toLowerCase();
+  if (!q) return menuItems;
+  return menuItems.filter((it) =>
+    (it.name + " " + it.description).toLowerCase().includes(q)
+  );
+}
+
+// ----------------------
+// Render Menu
+// ----------------------
+function renderMenu() {
   const items = getFilteredMenu();
-  menuGrid.innerHTML = items.map(item => `
-    <div class="item">
-      <div class="item__top">
-        <div class="item__name">${item.name}</div>
-        <div class="item__price">${money(item.price)}</div>
-      </div>
-      <div class="item__desc">${item.desc}</div>
-      <div class="item__meta">${(item.meta || []).map(m => `<span>• ${m}</span>`).join("")}</div>
-      <button class="btn" data-add="${item.id}">Add to Cart</button>
-    </div>
-  `).join("");
 
-  menuGrid.querySelectorAll("[data-add]").forEach(btn => {
-    btn.addEventListener("click", () => addToCart(btn.getAttribute("data-add")));
-  });
-}
-
-// --- Cart ops
-function addToCart(id){
-  cart.set(id, (cart.get(id) || 0) + 1);
-  syncCartUI();
-  openDrawer();
-}
-
-function decFromCart(id){
-  const q = cart.get(id) || 0;
-  if(q <= 1) cart.delete(id);
-  else cart.set(id, q - 1);
-  syncCartUI();
-}
-
-function incInCart(id){
-  cart.set(id, (cart.get(id) || 0) + 1);
-  syncCartUI();
-}
-
-function cartItemsDetailed(){
-  const lines = [];
-  for(const [id, qty] of cart.entries()){
-    const item = MENU.find(x => x.id === id);
-    if(!item) continue;
-    lines.push({ ...item, qty, lineTotal: item.price * qty });
-  }
-  return lines;
-}
-
-function subtotal(){
-  return cartItemsDetailed().reduce((sum, i) => sum + i.lineTotal, 0);
-}
-
-function syncCartUI(){
-  const items = cartItemsDetailed();
-  const count = items.reduce((sum, i) => sum + i.qty, 0);
-
-  cartCount.textContent = String(count);
-  cartSub.textContent = `${count} item${count === 1 ? "" : "s"}`;
-  cartSubtotal.textContent = money(subtotal());
-
-  if(items.length === 0){
-    cartList.innerHTML = `
-      <div class="noteCard">
-        <div class="noteCard__title">Your cart is empty</div>
-        <p class="noteCard__text">Add items from the menu to place an order.</p>
-      </div>
-    `;
-  } else {
-    cartList.innerHTML = items.map(i => `
-      <div class="cartItem">
-        <div>
-          <div class="cartItem__name">${i.name}</div>
-          <div class="cartItem__meta">${money(i.price)} · Line: ${money(i.lineTotal)}</div>
-        </div>
-        <div class="cartItem__actions">
-          <button class="qtyBtn" data-dec="${i.id}" aria-label="Decrease quantity">−</button>
-          <div class="qty">${i.qty}</div>
-          <button class="qtyBtn" data-inc="${i.id}" aria-label="Increase quantity">+</button>
-        </div>
-      </div>
-    `).join("");
-
-    cartList.querySelectorAll("[data-dec]").forEach(b => b.addEventListener("click", () => decFromCart(b.getAttribute("data-dec"))));
-    cartList.querySelectorAll("[data-inc]").forEach(b => b.addEventListener("click", () => incInCart(b.getAttribute("data-inc"))));
-  }
-
-  // Prepare hidden fields for form submit
-  const orderLines = items.map(i => `${i.qty}x ${i.name} (${money(i.price)})`).join(" | ");
-  orderItemsField.value = orderLines || "";
-  orderTotalField.value = money(subtotal());
-}
-
-// --- Drawer
-function openDrawer(){
-  drawer.classList.add("drawer--open");
-  drawer.setAttribute("aria-hidden", "false");
-}
-function closeDrawer(){
-  drawer.classList.remove("drawer--open");
-  drawer.setAttribute("aria-hidden", "true");
-}
-
-// --- Tabs
-tabs.forEach(t => {
-  t.addEventListener("click", () => {
-    tabs.forEach(x => x.classList.remove("tab--active"));
-    t.classList.add("tab--active");
-    activeFilter = t.getAttribute("data-filter") || "all";
-    renderMenu();
-  });
-});
-
-// --- Buttons
-openCartBtn.addEventListener("click", openDrawer);
-openCartBtn2.addEventListener("click", openDrawer);
-closeCartBtn.addEventListener("click", closeDrawer);
-closeCartOverlay.addEventListener("click", closeDrawer);
-
-scrollToOrderBtn.addEventListener("click", () => {
-  document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
-  openDrawer();
-});
-
-// ESC close
-document.addEventListener("keydown", (e) => {
-  if(e.key === "Escape") closeDrawer();
-});
-
-// --- Form submit (AJAX so we can show success message)
-orderForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  formMsg.textContent = "";
-
-  const items = cartItemsDetailed();
-  if(items.length === 0){
-    formMsg.textContent = "Add at least one item to your cart before ordering.";
+  if (items.length === 0) {
+    menuGrid.innerHTML = `<div class="card"><p class="muted">No results. Try a different search.</p></div>`;
     return;
   }
 
-  try{
-    const formData = new FormData(orderForm);
-    const res = await fetch(orderForm.action, {
-      method: "POST",
-      body: formData,
-      headers: { "Accept": "application/json" }
-    });
+  menuGrid.innerHTML = items
+    .map((it) => {
+      const qty = cart.get(it.id)?.qty || 0;
+      return `
+        <article class="menu-card">
+          <img class="menu-img" src="${it.image}" alt="${it.name}" loading="lazy" />
+          <div class="menu-body">
+            <div class="menu-top">
+              <h3>${it.name}</h3>
+              <span class="price">${money(it.price)}</span>
+            </div>
+            <p class="menu-desc">${it.description}</p>
 
-    if(res.ok){
-      formMsg.textContent = "✅ Order received! We’ll reach out if needed. See you at pickup.";
-      cart.clear();
-      syncCartUI();
-      orderForm.reset();
-    } else {
-      formMsg.textContent = "⚠️ Could not submit order. Please try again, or call us.";
-    }
-  } catch {
-    formMsg.textContent = "⚠️ Network error. Please try again, or call us.";
+            <div class="menu-actions">
+              <button class="btn" data-add="${it.id}">Add to Order</button>
+
+              <span class="qty-pill">
+                <button class="btn-outline" data-dec="${it.id}" type="button">-</button>
+                <strong>${qty}</strong>
+                <button class="btn-outline" data-inc="${it.id}" type="button">+</button>
+              </span>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  // Wire events (single pass)
+  menuGrid.querySelectorAll("[data-add]").forEach((btn) => {
+    btn.addEventListener("click", () => addToCart(btn.dataset.add, 1, true));
+  });
+  menuGrid.querySelectorAll("[data-inc]").forEach((btn) => {
+    btn.addEventListener("click", () => addToCart(btn.dataset.inc, 1, false));
+  });
+  menuGrid.querySelectorAll("[data-dec]").forEach((btn) => {
+    btn.addEventListener("click", () => addToCart(btn.dataset.dec, -1, false));
+  });
+}
+
+searchInput.addEventListener("input", renderMenu);
+
+// ----------------------
+// Cart logic
+// ----------------------
+function addToCart(itemId, deltaQty, scrollToOrder) {
+  const item = menuItems.find((x) => x.id === itemId);
+  if (!item) return;
+
+  const existing = cart.get(itemId);
+  const newQty = (existing?.qty || 0) + deltaQty;
+
+  if (newQty <= 0) {
+    cart.delete(itemId);
+  } else {
+    cart.set(itemId, { item, qty: newQty });
   }
-});
 
-// Init
+  renderMenu();
+  renderCart();
+
+  if (scrollToOrder && cart.size > 0) {
+    document.getElementById("order").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function renderCart() {
+  if (cart.size === 0) {
+    orderItemsEl.classList.add("muted");
+    orderItemsEl.innerHTML = "No items yet.";
+    orderTotalEl.textContent = money(0);
+    orderDetailsField.value = "";
+    orderTotalField.value = "0.00";
+    placeOrderBtn.disabled = true;
+    return;
+  }
+
+  orderItemsEl.classList.remove("muted");
+
+  let total = 0;
+  const lines = [];
+
+  for (const [id, entry] of cart.entries()) {
+    const lineTotal = entry.item.price * entry.qty;
+    total += lineTotal;
+
+    lines.push(`
+      <div class="order-item-row">
+        <span>${entry.item.name} <span class="muted">x${entry.qty}</span></span>
+        <span>
+          ${money(lineTotal)}
+          <button class="btn-outline" style="padding:4px 10px; margin-left:8px;" type="button" data-remove="${id}">Remove</button>
+        </span>
+      </div>
+    `);
+  }
+
+  orderItemsEl.innerHTML = lines.join("");
+  orderTotalEl.textContent = money(total);
+
+  // Hidden fields for Formspree email
+  const details = Array.from(cart.values())
+    .map((e) => `${e.item.name} x${e.qty} (${money(e.item.price)} each)`)
+    .join(" | ");
+  orderDetailsField.value = details;
+  orderTotalField.value = total.toFixed(2);
+
+  placeOrderBtn.disabled = false;
+
+  // Remove buttons
+  orderItemsEl.querySelectorAll("[data-remove]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      cart.delete(btn.dataset.remove);
+      renderMenu();
+      renderCart();
+    });
+  });
+}
+
+// Initial render
 renderMenu();
-syncCartUI();
+renderCart();
