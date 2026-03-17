@@ -647,15 +647,20 @@ button,input,select,textarea{font:inherit}
 }
 
 @media (max-width: 980px){
-  .hero-inner,
-  .order-layout,
-  .menu-grid,
-  .contact-grid{
+  .hero-inner{
+    grid-template-columns:1fr;
+  }
+
+  .order-layout{
+    grid-template-columns:1fr;
+  }
+
+  .menu-grid{
     grid-template-columns:1fr 1fr;
   }
 
-  .hero-inner{
-    grid-template-columns:1fr;
+  .contact-grid{
+    grid-template-columns:1fr 1fr;
   }
 
   .hero-card{
@@ -670,7 +675,6 @@ button,input,select,textarea{font:inherit}
   }
 
   .menu-grid,
-  .order-layout,
   .contact-grid,
   .form-grid{
     grid-template-columns:1fr;
