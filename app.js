@@ -1,67 +1,43 @@
 const MENU_ITEMS = [
   {
     id: "kt1",
-    name: "Khmer Grilled Chicken Bowl",
-    category: "Bowls",
-    price: 13.99,
-    description: "Grilled marinated chicken over jasmine rice with vegetables and house sauce.",
-    image: "images/menu/khmer-chicken-bowl.jpg"
+    name: "Banh Mi",
+    category: "Sandwiches",
+    price: 10.99,
+    description: "Crisp baguette with pickled vegetables, herbs, and savory filling.",
+    image: "images/menu/banhmi.jpg"
   },
   {
     id: "kt2",
+    name: "Chicken Curry",
+    category: "Curries",
+    price: 15.49,
+    description: "Cambodian-style curry with chicken, potatoes, carrots, and rich comforting flavor.",
+    image: "images/menu/chickencurry.jpg"
+  },
+  {
+    id: "kt3",
+    name: "Family Combo",
+    category: "Combos",
+    price: 34.99,
+    description: "A shareable family-style combo with a selection of Khmer favorites.",
+    image: "images/menu/familycombo.jpg"
+  },
+  {
+    id: "kt4",
     name: "Beef Lok Lak",
     category: "Entrees",
     price: 16.99,
     description: "Tender beef with pepper-lime flavor, served with rice and fresh vegetables.",
-    image: "images/menu/beef-lok-lak.jpg"
-  },
-  {
-    id: "kt3",
-    name: "Khmer Curry Chicken",
-    category: "Curries",
-    price: 15.49,
-    description: "Cambodian-style curry with chicken, potatoes, carrots, and coconut richness.",
-    image: "images/menu/khmer-curry.jpg"
-  },
-  {
-    id: "kt4",
-    name: "Lemongrass Beef Rice Bowl",
-    category: "Bowls",
-    price: 14.99,
-    description: "Savory lemongrass beef with rice, pickled vegetables, and herbs.",
-    image: "images/menu/lemongrass-beef-bowl.jpg"
+    image: "images/menu/loklak.jpg"
   },
   {
     id: "kt5",
-    name: "Khmer Fried Rice",
-    category: "Rice",
-    price: 12.99,
-    description: "Wok-fried rice with egg, vegetables, and Khmer seasoning.",
-    image: "images/menu/khmer-fried-rice.jpg"
-  },
-  {
-    id: "kt6",
-    name: "Stir-Fried Noodles",
-    category: "Noodles",
-    price: 13.49,
-    description: "Rice noodles tossed with vegetables and savory house sauce.",
-    image: "images/menu/stir-fried-noodles.jpg"
-  },
-  {
-    id: "kt7",
-    name: "Banh Mi Sandwich",
-    category: "Sandwiches",
-    price: 10.99,
-    description: "Crisp baguette with pickled vegetables, herbs, and savory filling.",
-    image: "images/menu/banh-mi.jpg"
-  },
-  {
-    id: "kt8",
-    name: "Mango Sticky Rice",
+    name: "Sticky Rice",
     category: "Desserts",
     price: 7.99,
-    description: "Sweet mango served with coconut sticky rice.",
-    image: "images/menu/mango-sticky-rice.jpg"
+    description: "Sweet sticky rice dessert with traditional flavor and texture.",
+    image: "images/menu/stickyrice.jpg"
   }
 ];
 
@@ -144,107 +120,24 @@ function findCartItem(id) {
   return state.cart.find(item => item.id === id);
 }
 
-function renderMenu() {
-  const query = state.search.trim().toLowerCase();
-
-  const filtered = MENU_ITEMS.filter(item => {
-    if (!query) return true;
-    return (
-      item.name.toLowerCase().includes(query) ||
-      item.category.toLowerCase().includes(query) ||
-      item.description.toLowerCase().includes(query)
-    );
-  });
-
-  if (filtered.length === 0) {
-    menuGrid.innerHTML = `
-      <div class="empty-state">
-        No menu items found. Try a different search term.
-      </div>
-    `;
-    return;
-  }
-
-  menuGrid.innerHTML = filtered.map(item => `
-    <article class="menu-card">
-      <div class="menu-image">
-        <img
-          src="${safeText(item.image)}"
-          alt="${safeText(item.name)}"
-          loading="lazy"
-        />
-      </div>
-
-      <div class="menu-body">
-        <span class="menu-tag">${safeText(item.category)}</span>
-
-        <div class="menu-meta">
-          <h3>${safeText(item.name)}</h3>
-          <div class="menu-price">${money(item.price)}</div>
-        </div>
-
-        <p class="menu-desc">${safeText(item.description)}</p>
-
-        <div class="menu-actions">
-          <span class="small-muted">Freshly made</span>
-          <button class="btn btn-primary" type="button" data-add="${safeText(item.id)}">Add</button>
-        </div>
-      </div>
-    </article>
-  `).join("");
-}
-
-function renderCart() {
-  if (state.cart.length === 0) {
-    orderItems.innerHTML = `
-      <div class="empty-state">
-        No items yet. Add dishes from the menu to begin your delivery order.
-      </div>
-    `;
-  } else {
-    orderItems.innerHTML = state.cart.map(item => `
-      <div class="order-item">
-        <div>
-          <h4>${safeText(item.name)}</h4>
-          <p>${money(item.price)} each • Line total: ${money(item.price * item.qty)}</p>
-        </div>
-
-        <div class="qty-controls">
-          <button class="qty-btn" type="button" data-minus="${safeText(item.id)}">−</button>
-          <div class="qty-value">${item.qty}</div>
-          <button class="qty-btn" type="button" data-plus="${safeText(item.id)}">+</button>
-        </div>
-      </div>
-    `).join("");
-  }
-
-  const itemCount = getItemCount();
-  const subtotal = getSubtotal();
-  const deliveryFee = getDeliveryFee(subtotal);
-  const total = subtotal + deliveryFee;
-
-  itemCountEl.textContent = String(itemCount);
-  orderSubtotalEl.textContent = money(subtotal);
-  deliveryFeeEl.textContent = money(deliveryFee);
-  orderTotalEl.textContent = money(total);
-
-  orderDetailsField.value = buildOrderDetails();
-  orderSubtotalField.value = subtotal.toFixed(2);
-  deliveryFeeField.value = deliveryFee.toFixed(2);
-  orderTotalField.value = total.toFixed(2);
-
-  updateOrderNotice(subtotal, deliveryFee);
-  updateZipNotice();
-  updateStickyCart(itemCount, total);
-  updateSubmitState();
-}
-
 function buildOrderDetails() {
   if (state.cart.length === 0) return "";
 
   return state.cart.map(item => {
     return `${item.qty} x ${item.name} - ${money(item.price)} each = ${money(item.qty * item.price)}`;
   }).join("\n");
+}
+
+function canSubmit() {
+  const subtotal = getSubtotal();
+  const zip = normalizeZip(zipInput.value || "");
+
+  return (
+    state.cart.length > 0 &&
+    subtotal >= DELIVERY_CONFIG.minimumOrder &&
+    /^\d{5}$/.test(zip) &&
+    isZipAllowed(zip)
+  );
 }
 
 function updateOrderNotice(subtotal, deliveryFee) {
@@ -296,18 +189,6 @@ function updateZipNotice() {
   zipNoticeEl.textContent = `Delivery is available to ZIP code ${zip}.`;
 }
 
-function canSubmit() {
-  const subtotal = getSubtotal();
-  const zip = normalizeZip(zipInput.value || "");
-
-  return (
-    state.cart.length > 0 &&
-    subtotal >= DELIVERY_CONFIG.minimumOrder &&
-    /^\d{5}$/.test(zip) &&
-    isZipAllowed(zip)
-  );
-}
-
 function updateSubmitState() {
   placeOrderBtn.disabled = !canSubmit();
 }
@@ -322,6 +203,102 @@ function updateStickyCart(itemCount, total) {
     stickyCart.classList.remove("show");
     stickyCart.style.display = "none";
   }
+}
+
+function renderMenu() {
+  const query = state.search.trim().toLowerCase();
+
+  const filtered = MENU_ITEMS.filter(item => {
+    if (!query) return true;
+    return (
+      item.name.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query) ||
+      item.description.toLowerCase().includes(query)
+    );
+  });
+
+  if (filtered.length === 0) {
+    menuGrid.innerHTML = `
+      <div class="empty-state">
+        No menu items found. Try a different search term.
+      </div>
+    `;
+    return;
+  }
+
+  menuGrid.innerHTML = filtered.map(item => `
+    <article class="menu-card">
+      <div class="menu-image">
+        <img
+          src="${safeText(item.image)}"
+          alt="${safeText(item.name)}"
+          loading="lazy"
+          onerror="this.onerror=null;this.src='images/menu/herofood.jpg';"
+        />
+      </div>
+
+      <div class="menu-body">
+        <span class="menu-tag">${safeText(item.category)}</span>
+
+        <div class="menu-meta">
+          <h3>${safeText(item.name)}</h3>
+          <div class="menu-price">${money(item.price)}</div>
+        </div>
+
+        <p class="menu-desc">${safeText(item.description)}</p>
+
+        <div class="menu-actions">
+          <span class="small-muted">Freshly made</span>
+          <button class="btn btn-primary" type="button" data-add="${safeText(item.id)}">Add</button>
+        </div>
+      </div>
+    </article>
+  `).join("");
+}
+
+function renderCart() {
+  if (state.cart.length === 0) {
+    orderItems.innerHTML = `
+      <div class="empty-state">
+        No items yet. Add dishes from the menu to begin your delivery order.
+      </div>
+    `;
+  } else {
+    orderItems.innerHTML = state.cart.map(item => `
+      <div class="order-item">
+        <div>
+          <h4>${safeText(item.name)}</h4>
+          <p>${money(item.price)} each • Line total: ${money(item.price * item.qty)}</p>
+        </div>
+
+        <div class="qty-controls">
+          <button class="qty-btn" type="button" data-minus="${safeText(item.id)}" aria-label="Decrease quantity">−</button>
+          <div class="qty-value">${item.qty}</div>
+          <button class="qty-btn" type="button" data-plus="${safeText(item.id)}" aria-label="Increase quantity">+</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  const itemCount = getItemCount();
+  const subtotal = getSubtotal();
+  const deliveryFee = getDeliveryFee(subtotal);
+  const total = subtotal + deliveryFee;
+
+  itemCountEl.textContent = String(itemCount);
+  orderSubtotalEl.textContent = money(subtotal);
+  deliveryFeeEl.textContent = money(deliveryFee);
+  orderTotalEl.textContent = money(total);
+
+  orderDetailsField.value = buildOrderDetails();
+  orderSubtotalField.value = subtotal.toFixed(2);
+  deliveryFeeField.value = deliveryFee.toFixed(2);
+  orderTotalField.value = total.toFixed(2);
+
+  updateOrderNotice(subtotal, deliveryFee);
+  updateZipNotice();
+  updateStickyCart(itemCount, total);
+  updateSubmitState();
 }
 
 function addToCart(id) {
